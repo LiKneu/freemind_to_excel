@@ -20,6 +20,6 @@ Presently only the nodes text is transferred into the Excel file. All other elem
 
 ## Usage
 
-''''main.py --excel input_file.mm output_file.xlsx''''
+    main.py --excel input_file.mm output_file.xlsx
 
 Presently tested on Win7 only.
