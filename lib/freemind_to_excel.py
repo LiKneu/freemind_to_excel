@@ -33,7 +33,7 @@ def to_excel(input_file, output_file):
         path = tree.getpath(node)   # Get the xpath of the node
         
         # Count number of dashed as indicator for the depth of the structure
-        # -2 is for the 1sr 2 levels that are not needed here
+        # -2 is for the 1st 2 levels that are not needed here
         nr_dashes = path.count('/') - 2
         
         if nr_dashes > max_levels:  # To generate headings for each column we
