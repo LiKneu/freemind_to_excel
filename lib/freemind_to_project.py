@@ -19,6 +19,17 @@ def get_pj_path(fm_path):
     pj_path = pj_path.replace('node', 'Task')
     return pj_path
 
+def node_to_note(pj_root, pj_uid, pj_text):
+    '''Stores the note information of Freemind into a <Note> tag of Project'''
+    # Create the XPATH search pattern to find the Project UID...
+    xpath_pattern = '//UID[text()="' + str(pj_uid) + '"]'
+    task_id = pj_root.xpath(xpath_pattern)
+    # ...to get the parent node of this UID...
+    pj_parent = task_id[0].getparent()
+    # ...to attach the <Notes> to it.
+    note = ET.SubElement(pj_parent, "Notes")
+    note.text = pj_text
+
 def node_to_task(pj_parent, pj_name, pj_uid, pj_level=1):
     '''Creates <Task> element with the necessary subelements and attaches it to
     a given parent element.
@@ -46,7 +57,8 @@ def node_to_task(pj_parent, pj_name, pj_uid, pj_level=1):
     # Name (occurence: min = 0, max = 1)
     #   The name of the task.
     name = ET.SubElement(task, "Name")
-    name.text = pj_name
+    # Project doesn't allow linebreaks in task titles so we remove them here
+    name.text = pj_name.replace('\n', ' ')
     
     # UID (occurences: min = max = 1)
     #   The UID element is a unique identifier
@@ -84,7 +96,6 @@ def node_to_task(pj_parent, pj_name, pj_uid, pj_level=1):
     #   The number that indicates the level of a task in the project outline
     #   hierarchy.
     outlinelevel = ET.SubElement(task, "OutlineLevel")
-    # TODO: set the text value depending on the nodes depth
     outlinelevel.text = str(pj_level)
 
     # FixedCostAccrual
@@ -145,7 +156,6 @@ def to_project(input_file, output_file):
     # Add the Project <Tasks> element
     pj_tasks = ET.SubElement(pj_root, 'Tasks')
     pj_path = pj_tree.getpath(pj_tasks)
-    print("Project XPATH:", pj_path)
     
     # Dict holding mapping table of Freemind and Project UIDs
     uid_mapping = {}
@@ -154,25 +164,39 @@ def to_project(input_file, output_file):
     pj_uid = 0
     
     for fm_node in fm_root.iter('node'):
+        # Determine the parent of the present Freemind element
         fm_parent = fm_node.getparent()
+        # Determine the XPATH of the Freemind parent element
         fm_parent_path = fm_tree.getpath(fm_parent)
+        # Determine the XPATH of the Project parent element from the XPATH of
+        # the Freemind parent element
         pj_parent_path = get_pj_path(fm_parent_path)
+        print("pj parent path:", pj_parent_path)
+        # Determine the Project parent element based on its XPATH
         pj_parent = pj_tree.xpath(pj_parent_path)[0]
+        # Get the Project text from the Freemind node TEXT attribute
         pj_name = fm_node.get("TEXT")
+        # Get the Freemind ID from its attribute
         fm_id = fm_node.get("ID")
+        # Add Freemind ID and Project UID to mapping table (Dictionary)
         uid_mapping[fm_id] = pj_uid
-        print("fm id:", fm_id)
         # calculate level with help of XPATH
         # Count number of dashed as indicator for the depth of the structure
         # -1 is for the 1st that is not needed here
         pj_level = pj_tree.getpath(pj_parent).count('/')-1
-        print("Level: ", pj_level)
         node_to_task(pj_parent=pj_parent, pj_name=pj_name, pj_uid=pj_uid, pj_level=pj_level)
+        
+        # Check if node has an attached note <richcontent>
+        fm_note = fm_node.xpath('normalize-space(./richcontent)')
+        # If yes, remove all html tags and store the remaining text in a
+        # Project <Note> tag
+        if fm_note:
+            node_to_note(pj_root=pj_root, pj_uid=pj_uid, pj_text=fm_note)
+        
         pj_uid += 1
-    
+
     # Write the Project XML tree to disc
-    # ~ tree = ET.ElementTree(pj_root)
-    pj_tree.write(output_file, pretty_print=True, xml_declaration=True,   encoding="utf-8")
+    pj_tree.write(output_file, pretty_print=True, xml_declaration=True, encoding="utf-8")
 
 
 if __name__ == '__main__':
