@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# fm_2_pj.py
+# freemind_to_project.py
 #
 # Copyright LiKneu 2019
 #
