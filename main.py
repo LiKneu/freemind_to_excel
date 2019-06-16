@@ -9,18 +9,19 @@ import sys  # command line options
 
 from lib.freemind_to_excel import to_excel
 from lib.freemind_to_project import to_project
+from lib.freemind_to_word import to_word
 
 def main():
     script = sys.argv[0]    # filename of this script
     if len(sys.argv)==1:    # no arguments so print help message
         print('''Usage: main.py action filename
-        action must be one of --excel --project''')
+        action must be one of --excel --project --word''')
         return
     
     action = sys.argv[1]
     # check if user input of action is an allowed/defined one
-    assert action in ['--excel', '--project'], \
-        'Action is not one of --excel --project: ' + action
+    assert action in ['--excel', '--project', '--word'], \
+        'Action is not one of --excel --project --word: ' + action
     
     input_file = sys.argv[2]    # filename of the to be converted mindmap
     output_file = sys.argv[3]   # filename of the export file
@@ -32,6 +33,8 @@ def process(action, input_file, output_file):
         to_excel(input_file, output_file)
     elif action == '--project':
         to_project(input_file, output_file)
+    elif action == '--word':
+        to_word(input_file, output_file)
 
 if __name__ == '__main__':
     main()

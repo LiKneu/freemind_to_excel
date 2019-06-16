@@ -34,10 +34,26 @@ This is the result using main.py with the --project option:
 
 <img src="docs/Project_freemind_to_project.png" width=260>
 
-Presently only the nodes text and hirarchy is transferred into the Excel file. All other elements like notes, icons, etc. are skipped.
+The conversion considers nodes, richcontent i.e. notes (text only) and hirarchy.
 
 ## Usage
 
-    main.py --project input_file.mm output_file.xml.
+    main.py --project input_file.mm output_file.xml
+
+Presently tested on Win7 only.
+
+# Freemind to Microsoft Word converter
+
+Convert Freemind files with extension .mm (XML file format) to Word files with extension .DOCX.
+
+This is the result using main.py with the --word option:
+
+<img src="docs/Word_freemind_to_word.png" width=260>
+
+The conversion considers nodes, richcontent i.e. notes (text only) and hirarchy.
+
+## Usage
+
+    main.py --word input_file.mm output_file.docx
 
 Presently tested on Win7 only.
